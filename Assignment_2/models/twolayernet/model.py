@@ -70,6 +70,10 @@ class TwoLayerNetv1(object):
         # of shape (N, C).                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        hidden_layer = np.maximum(0, X.dot(W1) + b1)  # ReLU activation
+        scores = hidden_layer.dot(W2) + b2  # Linear transformation
+        softmax_scores = np.exp(scores)
+        softmax_scores /= np.sum(softmax_scores, axis=1, keepdims=True)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -116,8 +120,7 @@ class TwoLayerNetv2(TwoLayerNetv1):
         # from the parent (i.e v1) class.                                             #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-
+        softmax_scores = super().forward(X)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # If the targets are not given then jump out, we're done
@@ -133,9 +136,17 @@ class TwoLayerNetv2(TwoLayerNetv1):
         # classifier loss.                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        correct_class_scores = softmax_scores[np.arange(N), y]
+        data_loss = -np.log(correct_class_scores)
+        data_loss = np.mean(data_loss)
 
+        # Add regularization term
+        reg_loss = 1.0 * reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
+        
+        loss = data_loss + reg_loss
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        # Output the computed loss
 
         return loss
     
