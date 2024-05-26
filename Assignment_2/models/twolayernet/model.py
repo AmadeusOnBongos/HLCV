@@ -39,8 +39,8 @@ class TwoLayerNetv1(object):
         self.params['b1'] = np.zeros(hidden_size)
         self.params['W2'] = std * np.random.randn(hidden_size, output_size)
         self.params['b2'] = np.zeros(output_size)
-        self.params['a2'] = np.zeros(hidden_size)
-        self.params['a1'] = np.zeros(input_size)
+        self.a2 = np.zeros(hidden_size)
+        self.a1 = np.zeros(input_size)
         
     def forward(self, X):
         """
@@ -72,9 +72,9 @@ class TwoLayerNetv1(object):
         # of shape (N, C).                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        self.params['a1'] = X
+        self.a1 = X
         hidden_layer = np.maximum(0, X.dot(W1) + b1)  # ReLU activation
-        self.params['a2'] = hidden_layer
+        self.a2 = hidden_layer
         scores = hidden_layer.dot(W2) + b2  # Linear transformation
         softmax_scores = np.exp(scores)
         softmax_scores /= np.sum(softmax_scores, axis=1, keepdims=True)
@@ -231,23 +231,19 @@ class TwoLayerNetv3(TwoLayerNetv2):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        # create probs_z3 matrix
-        exp_scores = np.exp(scores)
-        probs_z3 = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
         
         # create the delta matrix
-        delta = np.zeros_like(probs_z3)
+        delta = np.zeros_like(scores)
         delta[np.arange(N), y] = 1
 
         # calculate gradients
-        grads_z3 = (1/N) * (probs_z3 - delta)
+        grads_z3 = (1/N) * (scores - delta)
         
-        grads['W2'] = np.dot(self.params['a2'].T, grads_z3) + 2 * reg * self.params['W2']
+        grads['W2'] = np.dot(self.a2.T, grads_z3) + 2 * reg * self.params['W2']
         grads['b2'] = np.sum(grads_z3)
 
         grads_z2 = np.dot(grads_z3, self.params['W2'].T) 
-        grads_z2[self.params['a2'] <= 0] = 0
+        grads_z2[self.a2 <= 0] = 0
 
         grads['W1'] = np.dot(X.T, grads_z2) + 2 * reg * self.params['W1']
         grads['b1'] = np.sum(grads_z2)
@@ -327,6 +323,8 @@ class TwoLayerNetv4(TwoLayerNetv3):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+            for param_name in self.params:
+                self.params[param_name] -= learning_rate * grads[param_name]
 
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -373,6 +371,8 @@ class TwoLayerNetv4(TwoLayerNetv3):
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        scores = self.forward(X)
+        y_pred = np.argmax(scores, axis=1)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
