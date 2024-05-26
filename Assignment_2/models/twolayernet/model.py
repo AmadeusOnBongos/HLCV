@@ -39,6 +39,8 @@ class TwoLayerNetv1(object):
         self.params['b1'] = np.zeros(hidden_size)
         self.params['W2'] = std * np.random.randn(hidden_size, output_size)
         self.params['b2'] = np.zeros(output_size)
+        self.params['a2'] = np.zeros(hidden_size)
+        self.params['a1'] = np.zeros(input_size)
         
     def forward(self, X):
         """
@@ -70,7 +72,9 @@ class TwoLayerNetv1(object):
         # of shape (N, C).                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        self.params['a1'] = X
         hidden_layer = np.maximum(0, X.dot(W1) + b1)  # ReLU activation
+        self.params['a2'] = hidden_layer
         scores = hidden_layer.dot(W2) + b2  # Linear transformation
         softmax_scores = np.exp(scores)
         softmax_scores /= np.sum(softmax_scores, axis=1, keepdims=True)
@@ -215,7 +219,8 @@ class TwoLayerNetv3(TwoLayerNetv2):
         # from the parent (i.e v2) class.                                             #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        compute_loss = super().compute_loss
+        loss = compute_loss(X, y, reg)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # Backward pass: compute gradients
@@ -226,6 +231,26 @@ class TwoLayerNetv3(TwoLayerNetv2):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+        # create probs_z3 matrix
+        exp_scores = np.exp(scores)
+        probs_z3 = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+        
+        # create the delta matrix
+        delta = np.zeros_like(probs_z3)
+        delta[np.arange(N), y] = 1
+
+        # calculate gradients
+        grads_z3 = (1/N) * (probs_z3 - delta)
+        
+        grads['W2'] = np.dot(self.params['a2'].T, grads_z3) + 2 * reg * self.params['W2']
+        grads['b2'] = np.sum(grads_z3)
+
+        grads_z2 = np.dot(grads_z3, self.params['W2'].T) 
+        grads_z2[self.params['a2'] <= 0] = 0
+
+        grads['W1'] = np.dot(X.T, grads_z2) + 2 * reg * self.params['W1']
+        grads['b1'] = np.sum(grads_z2)
 
         
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
