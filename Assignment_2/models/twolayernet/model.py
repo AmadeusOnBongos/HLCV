@@ -120,7 +120,8 @@ class TwoLayerNetv2(TwoLayerNetv1):
         # from the parent (i.e v1) class.                                             #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        softmax_scores = super().forward(X)
+        forward = super().forward
+        softmax_scores = forward(X)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # If the targets are not given then jump out, we're done
@@ -194,7 +195,8 @@ class TwoLayerNetv3(TwoLayerNetv2):
         # Thus you can simply use the method from the parent class.                   #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)****
-
+        forward = super().forward
+        scores = forward(X)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # If the targets are not given then jump out, we're done
