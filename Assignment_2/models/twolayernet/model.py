@@ -240,13 +240,13 @@ class TwoLayerNetv3(TwoLayerNetv2):
         grads_z3 = (1/N) * (scores - delta)
         
         grads['W2'] = np.dot(self.a2.T, grads_z3) + 2 * reg * self.params['W2']
-        grads['b2'] = np.sum(grads_z3)
+        grads['b2'] = np.sum(grads_z3, axis=0)
 
         grads_z2 = np.dot(grads_z3, self.params['W2'].T) 
         grads_z2[self.a2 <= 0] = 0
 
         grads['W1'] = np.dot(X.T, grads_z2) + 2 * reg * self.params['W1']
-        grads['b1'] = np.sum(grads_z2)
+        grads['b1'] = np.sum(grads_z2, axis=0)
 
         
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
