@@ -72,25 +72,28 @@ class ConvNet(BaseModel):
         # You can use matlplotlib.imshow to visualize an image in python                #
         #################################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        # Extract the weights from the first convolutional layer
         filters = self.conv_layers[0].weight.data.cpu().numpy()
         num_filters = filters.shape[0]
-
-        # Calculate the grid size
-        grid_size = int(np.ceil(np.sqrt(num_filters)))
-
+    
+        grid_rows = 8
+        grid_cols = 16
+    
         # Initialize a large image to hold all the filter images
         filter_height, filter_width = filters.shape[2], filters.shape[3]
-        big_image = np.zeros((grid_size * filter_height, grid_size * filter_width, 3))
-
+        big_image = np.zeros((grid_rows * filter_height, grid_cols * filter_width, 3))
+    
         # Normalize and place each filter image in the big image
         for idx in range(num_filters):
             filter_img = filters[idx, :, :, :]
-            filter_img = self._normalize(filter_img.transpose(1, 2, 0))  # Convert to HWC format
-            row = idx // grid_size
-            col = idx % grid_size
-            big_image[row * filter_height: (row + 1) * filter_height,
-                      col * filter_width: (col + 1) * filter_width, :] = filter_img
-
+            filter_img = self._normalize(filter_img.transpose(1, 2, 0))
+            row = idx // grid_cols
+            col = idx % grid_cols
+    
+            if row < grid_rows and col < grid_cols:
+                big_image[row * filter_height: (row + 1) * filter_height,
+                          col * filter_width: (col + 1) * filter_width, :] = filter_img
+    
         plt.figure(figsize=(10, 10))
         plt.imshow(big_image)
         plt.axis('off')
