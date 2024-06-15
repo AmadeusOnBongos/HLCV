@@ -23,7 +23,7 @@ q1_experiment = dict(
 
     datamodule = CIFAR10DataModule,
     data_args = dict(
-        data_dir = "/content/drive/MyDrive/Assignments/Assignment_3/data/exercise-3", # You may need to change this for Colab.
+        data_dir = "/content/drive/MyDrive/HLCV_stuff/Assignment_3/data/exercise-3", # You may need to change this for Colab.
         transform_preset = 'CIFAR10',
         batch_size = 200,
         shuffle = True,
@@ -89,7 +89,7 @@ q2a_normalization_experiment = dict(
 
     datamodule=CIFAR10DataModule,
     data_args=dict(
-        data_dir="/content/drive/MyDrive/Assignments/Assignment_3/data/exercise-3",  # You may need to change this for Colab.
+        data_dir="/content/drive/MyDrive/HLCV_stuff/Assignment_3/data/exercise-3",  # You may need to change this for Colab.
         transform_preset='CIFAR10',
         batch_size=200,
         shuffle=True,
